@@ -1,6 +1,7 @@
 package io.supercharge.shimmerlayout;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.widget.FrameLayout;
 public class ShimmerLayout extends FrameLayout {
 
     private static final int DEFAULT_ANIMATION_DURATION = 1500;
+    private static final int DEFAULT_ANIMATION_REPEAT_COUNT = ValueAnimator.INFINITE;
 
     private static final byte DEFAULT_ANGLE = 20;
 
@@ -48,6 +50,7 @@ public class ShimmerLayout extends FrameLayout {
     private boolean isAnimationStarted;
     private boolean autoStart;
     private int shimmerAnimationDuration;
+    private int shimmerAnimationRepeatCount;
     private int shimmerColor;
     private int shimmerAngle;
     private float maskWidth;
@@ -76,6 +79,7 @@ public class ShimmerLayout extends FrameLayout {
         try {
             shimmerAngle = a.getInteger(R.styleable.ShimmerLayout_shimmer_angle, DEFAULT_ANGLE);
             shimmerAnimationDuration = a.getInteger(R.styleable.ShimmerLayout_shimmer_animation_duration, DEFAULT_ANIMATION_DURATION);
+            shimmerAnimationRepeatCount = a.getInteger(R.styleable.ShimmerLayout_shimmer_animation_repeat_count, DEFAULT_ANIMATION_REPEAT_COUNT);
             shimmerColor = a.getColor(R.styleable.ShimmerLayout_shimmer_color, getColor(R.color.shimmer_color));
             autoStart = a.getBoolean(R.styleable.ShimmerLayout_shimmer_auto_start, false);
             maskWidth = a.getFloat(R.styleable.ShimmerLayout_shimmer_mask_width, 0.5F);
@@ -353,7 +357,7 @@ public class ShimmerLayout extends FrameLayout {
         maskAnimator = isAnimationReversed ? ValueAnimator.ofInt(shimmerAnimationFullLength, 0)
                 : ValueAnimator.ofInt(0, shimmerAnimationFullLength);
         maskAnimator.setDuration(shimmerAnimationDuration);
-        maskAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        maskAnimator.setRepeatCount(shimmerAnimationRepeatCount);
 
         maskAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -363,6 +367,12 @@ public class ShimmerLayout extends FrameLayout {
                 if (maskOffsetX + shimmerBitmapWidth >= 0) {
                     invalidate();
                 }
+            }
+        });
+        maskAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isAnimationStarted = false;
             }
         });
 
