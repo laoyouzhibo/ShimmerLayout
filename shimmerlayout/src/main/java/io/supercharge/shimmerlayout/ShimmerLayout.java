@@ -277,6 +277,7 @@ public class ShimmerLayout extends FrameLayout {
 
     private void resetShimmering() {
         if (maskAnimator != null) {
+            maskAnimator.removeAllListeners();
             maskAnimator.end();
             maskAnimator.removeAllUpdateListeners();
         }
@@ -372,7 +373,7 @@ public class ShimmerLayout extends FrameLayout {
         maskAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                isAnimationStarted = false;
+                resetShimmering();
             }
         });
 
